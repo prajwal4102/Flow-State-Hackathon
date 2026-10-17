@@ -12,9 +12,11 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178c6?logo=typescript&logoColor=white)
 ![MCP](https://img.shields.io/badge/protocol-MCP-8b5cf6)
 
-### [▶️ Watch the demo video](https://drive.google.com/file/d/1mmzZPyyu-ZU1XRc3NatmAV1kRGAJStN4/view?usp=sharing)
+### [▶️ Watch the demo video](https://youtu.be/PYulscSNAf0)
 
-[![Demo video](https://img.shields.io/badge/%E2%96%B6%20Demo%20video-watch%20on%20Google%20Drive-ea580c?style=for-the-badge&logo=googledrive&logoColor=white)](https://drive.google.com/file/d/1mmzZPyyu-ZU1XRc3NatmAV1kRGAJStN4/view?usp=sharing)
+[![AInstein demo video](https://img.youtube.com/vi/PYulscSNAf0/maxresdefault.jpg)](https://youtu.be/PYulscSNAf0)
+
+[![Watch on YouTube](https://img.shields.io/badge/%E2%96%B6%20Demo%20video-watch%20on%20YouTube-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://youtu.be/PYulscSNAf0)
 
 **See what the agents actually posted:**
 [![Telegram channel](https://img.shields.io/badge/Telegram-see%20the%20posts-26A5E4?logo=telegram&logoColor=white)](https://t.me/+PV3TEFkYuPNjMWRl)
