@@ -9,7 +9,7 @@ const clip = (s, n) => (s.length > n ? `${s.slice(0, n)}…` : s);
 
 /* Public links: where judges see the results, and how they reach the owner for approvals. */
 const CHANNELS = { Telegram: "https://t.me/+PV3TEFkYuPNjMWRl", Discord: "https://discord.gg/vqYfNTZhe" };
-const OWNER = { name: "Prajwal", phone: "+91 63627 52965", whatsapp: "https://wa.me/916362752965", telegram: "https://t.me/+916362752965" };
+const OWNER = { name: "Prajwal", whatsapp: "https://wa.me/916362752965", telegram: "https://t.me/+916362752965" };
 const waLink = (id) => `${OWNER.whatsapp}?text=${encodeURIComponent(`Hi ${OWNER.name}, I'm testing AInstein. Please approve my held action${id ? ` (approval id ${id})` : ""}.`)}`;
 const deliveredLinks = (set) => [...set].map((c) => `<a href="${CHANNELS[c]}" target="_blank" rel="noopener">Open ${c} ↗</a>`).join(" · ");
 
