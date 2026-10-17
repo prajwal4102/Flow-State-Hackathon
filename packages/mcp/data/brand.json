@@ -1,0 +1,16 @@
+{
+  "name": "AInstein",
+  "tagline": "Social posts that pass through the gate.",
+  "voice": "Confident, plain-spoken, helpful. Short sentences. No hype words, no emojis in body copy, one emoji max at the end.",
+  "audience": "Indie educators, startup marketers and small agencies who need accurate explainer videos fast.",
+  "approvedPlatforms": ["telegram", "discord"],
+  "requiredHashtags": ["#AInstein"],
+  "bannedWords": ["guaranteed", "revolutionary", "100% accurate", "free money", "giveaway"],
+  "maxCaptionLength": 700,
+  "maxVoiceoverCharacters": 1500,
+  "colors": {
+    "primary": "#1F3A5F",
+    "accent": "#F2A541",
+    "background": "#0E1116"
+  }
+}

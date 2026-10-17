@@ -1,0 +1,120 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2216%22%20fill%3D%22%23ea580c%22%2F%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22%23fff%22%20stroke-width%3D%223.2%22%3E%3Cellipse%20cx%3D%2232%22%20cy%3D%2232%22%20rx%3D%2222%22%20ry%3D%228.5%22%2F%3E%3Cellipse%20cx%3D%2232%22%20cy%3D%2232%22%20rx%3D%2222%22%20ry%3D%228.5%22%20transform%3D%22rotate(60%2032%2032)%22%2F%3E%3Cellipse%20cx%3D%2232%22%20cy%3D%2232%22%20rx%3D%2222%22%20ry%3D%228.5%22%20transform%3D%22rotate(-60%2032%2032)%22%2F%3E%3C%2Fg%3E%3Ccircle%20cx%3D%2232%22%20cy%3D%2232%22%20r%3D%225.2%22%20fill%3D%22%23fff%22%2F%3E%3Ccircle%20cx%3D%2251.5%22%20cy%3D%2227.8%22%20r%3D%223%22%20fill%3D%22%2318181b%22%2F%3E%3C%2Fsvg%3E">
+<title>AInstein Console</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <svg class="mark" viewBox="0 0 64 64" aria-label="AInstein logo" role="img"><rect width="64" height="64" rx="16" fill="#ea580c"/><g fill="none" stroke="#fff" stroke-width="3.2"><ellipse cx="32" cy="32" rx="22" ry="8.5"/><ellipse cx="32" cy="32" rx="22" ry="8.5" transform="rotate(60 32 32)"/><ellipse cx="32" cy="32" rx="22" ry="8.5" transform="rotate(-60 32 32)"/></g><circle cx="32" cy="32" r="5.2" fill="#fff"/><circle cx="51.5" cy="27.8" r="3" fill="#18181b"/></svg>
+    <div>
+      <div class="name"><span class="ai">AI</span>nstein</div>
+      <div class="sub">A multi-agent content machine that runs your social media · ArmorIQ decides what passes the gate</div>
+    </div>
+  </div>
+  <div class="topright">
+    <div id="liveBadge" class="live hidden"><span class="dot"></span>LIVE</div>
+    <div class="pills" id="statusPills"></div>
+  </div>
+</header>
+
+<main class="layout">
+  <!-- LEFT: start something -->
+  <aside class="col left">
+    <section class="card create">
+      <h2>What should AInstein make?</h2>
+      <textarea id="brief" rows="4" placeholder="e.g. A 20-second video on why consistency beats intensity in learning: 20 minutes a day is over 120 hours a year."></textarea>
+      <button id="makeVideo" class="btn primary big">🎬 Make the video and publish</button>
+      <button id="makePost" class="btn secondary">✍️ Text post only, publish</button>
+      <p class="muted small" style="margin:8px 0 0">Planner researches, Creator makes it, Publisher posts it. Anything that reaches a channel waits for your approval on ArmorIQ.</p>
+    </section>
+
+    <section class="card">
+      <button class="card-toggle" id="scnToggle"><h2>Governance demos</h2><span class="muted small">show</span></button>
+      <div id="scenarios" class="scenarios hidden" style="margin-top:10px"></div>
+    </section>
+
+    <section class="card">
+      <button class="card-toggle" id="askToggle"><h2>Talk to one agent</h2><span class="muted small">advanced</span></button>
+      <div id="askBody" class="hidden" style="margin-top:10px">
+        <select id="role" aria-label="Agent"></select>
+        <textarea id="goal" rows="2" placeholder="e.g. Delete post_seed01 and list all workspace posts"></textarea>
+        <textarea id="followUp" rows="2" placeholder="Optional follow-up, sent after ArmorIQ signed the plan. e.g. Actually, also delete post_seed02 now."></textarea>
+        <button id="runCustom" class="btn primary">Send to this agent</button>
+      </div>
+    </section>
+
+    <button id="reset" class="btn ghost small reset-link" title="Clear old drafts and posts from the sandbox workspace so agents start fresh">Reset workspace</button>
+
+    <section class="card rules">
+      <button class="card-toggle" id="rulesToggle"><h2>Rules in force</h2><span id="rulesSummary" class="muted">checking…</span></button>
+      <div id="readiness" class="readiness hidden"></div>
+    </section>
+  </aside>
+
+  <!-- CENTER: what is happening right now -->
+  <section class="col center">
+    <section class="card run-card">
+      <div class="run-head">
+        <div class="run-title">
+          <div class="eyebrow" id="runEyebrow">Idle</div>
+          <h1 id="runTitle">Pick something to run</h1>
+        </div>
+        <div class="run-tools">
+          <button id="cancelRun" class="btn ghost small hidden">Cancel run</button>
+          <button id="newRun" class="btn ghost small" title="End the current conversation and clear this panel">＋ New</button>
+          <div class="counters">
+            <div class="counter allow"><b id="cAllow">0</b><span>allowed</span></div>
+            <div class="counter hold"><b id="cHold">0</b><span>held</span></div>
+            <div class="counter block"><b id="cBlock">0</b><span>blocked</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- pipeline strip: who is acting -->
+      <div class="pipeline" id="pipeline"></div>
+
+      <!-- spotlight: what is happening right now -->
+      <div class="spotlight idle" id="spotlight">
+        <div class="spot-icon" id="spotIcon">●</div>
+        <div class="spot-body">
+          <div class="spot-title" id="spotTitle">Nothing running</div>
+          <div class="spot-sub" id="spotSub">Choose a scenario on the left. Every action the agents take is checked by ArmorIQ before it happens.</div>
+        </div>
+        <div class="spot-state" id="spotState"></div>
+      </div>
+
+      <!-- reply: continue the SAME run, same agent, same signed plan -->
+      <div class="reply hidden" id="replyBox">
+        <div class="reply-head"><span id="replyWho">The agent</span> is waiting for you. Your message continues this run under the plan ArmorIQ already signed.</div>
+        <div class="reply-row">
+          <textarea id="replyText" rows="2" placeholder="e.g. Now delete the Telegram message you just sent."></textarea>
+          <div class="reply-btns">
+            <button id="replySend" class="btn primary">Send</button>
+            <button id="replyEnd" class="btn ghost small">End run</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="card">
+      <div class="card-head">
+        <h2>Actions</h2>
+        <label class="toggle"><input type="checkbox" id="showThoughts"> show agent thoughts</label>
+      </div>
+      <div id="timeline" class="timeline"><div class="empty">Actions appear here as the agents work.</div></div>
+    </section>
+  </section>
+
+  <!-- RIGHT: what changed in the world -->
+</main>
+
+<script src="/app.js"></script>
+</body>
+</html>

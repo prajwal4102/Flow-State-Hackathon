@@ -1,0 +1,33 @@
+# Reference for Policy Studio. Author it in the platform form; this file documents the intent.
+name: studio-publisher-policy
+description: Publisher schedules freely, but anything the audience sees immediately is held for the owner's approval. Deletes are never allowed.
+target:
+  agent: studio-publisher
+default_action: block
+rules:
+  - mcp: research
+    tools: [get_brand_kit, get_analytics]
+    action: allow
+  - mcp: social
+    tools: [list_posts, get_posting_rules, fetch_comments, draft_post, schedule_post]
+    action: allow
+  - mcp: social
+    tools: [publish_post, reply_comment]
+    action: hold
+    reason: audience-facing-needs-owner-approval
+  - mcp: social
+    tools: [delete_post]
+    action: block
+    reason: pol-no-delete
+  - mcp: video
+    tools: [preview_video, get_video_status, list_projects]
+    action: allow
+  - mcp: video
+    tools: [edit_video, render_final]
+    action: allow
+    # The publisher owns the parent plan that is delegated to the editor; it may edit/render itself.
+  - mcp: video
+    tools: [create_video, export_source, delete_project, generate_voiceover]
+    action: block
+    reason: publisher-no-production
+# Optional velocity rule if the platform offers it: max 5 publish_post per day.

@@ -1,0 +1,9 @@
+{
+  "name": "vendor-discord-mcp",
+  "private": true,
+  "type": "module",
+  "description": "Isolated install of the public mcp-discord server (barryyip0625/mcp-discord).",
+  "dependencies": {
+    "mcp-discord": "1.3.4"
+  }
+}

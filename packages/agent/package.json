@@ -1,0 +1,25 @@
+{
+  "name": "@studio/agent",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "start": "tsx src/index.ts",
+    "typecheck": "tsc -p tsconfig.json",
+    "smoke:mcp": "tsx src/scripts/smoke-mcp.ts",
+    "smoke:armoriq": "tsx src/scripts/smoke-armoriq.ts",
+    "probe:matrix": "tsx src/scripts/probe-matrix.ts",
+    "register:armoriq": "tsx src/scripts/register-armoriq.ts"
+  },
+  "dependencies": {
+    "@armoriq/sdk": "^0.6.10",
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "express": "^5.1.0",
+    "openai": "^4.104.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.1",
+    "@types/node": "^22.10.5"
+  }
+}

@@ -1,0 +1,37 @@
+version: v1
+identity:
+  api_key: $ARMORIQ_API_KEY
+  user_id: $ARMORIQ_USER_EMAIL
+  agent_id: studio-editor
+environment: sandbox
+proxy:
+  url: https://proxy.armoriq.ai
+  timeout: 30
+  max_retries: 3
+mcp_servers:
+  - id: research
+    url: https://excluded-twisted-wagner-welfare.trycloudflare.com/mcp/research
+    description: AInstein research (brand kit, trends, URL fetch, analytics)
+    auth: { type: none }
+  - id: video
+    url: https://excluded-twisted-wagner-welfare.trycloudflare.com/mcp/video
+    description: AInstein video (Remotion create/edit/preview/render, ElevenLabs voiceover)
+    auth: { type: none }
+  - id: social
+    url: https://excluded-twisted-wagner-welfare.trycloudflare.com/mcp/social
+    description: AInstein social sandbox (draft, schedule, publish, reply, delete)
+    auth: { type: none }
+  - id: telegram
+    url: https://excluded-twisted-wagner-welfare.trycloudflare.com/mcp/telegram
+    description: Public Telegram bot MCP (@node2flow/telegram-bot-mcp) proxied by the AInstein host
+    auth: { type: none }
+  - id: discord
+    url: https://excluded-twisted-wagner-welfare.trycloudflare.com/mcp/discord
+    description: Public Discord MCP (mcp-discord) proxied by the AInstein host
+    auth: { type: none }
+policy:
+  allow: [get_brand_kit, fetch_trends, fetch_url, get_analytics, list_posts, get_posting_rules, fetch_comments, draft_post, schedule_post, publish_post, reply_comment, create_video, edit_video, preview_video, get_video_status, list_projects, generate_voiceover, render_final, attach_voiceover, tg_get_me, tg_get_chat, tg_send_message, tg_send_photo, tg_send_video, tg_send_document, tg_send_audio, discord_login, discord_get_server_info, discord_read_messages, discord_send, discord_add_reaction, discord_add_multiple_reactions, discord_get_forum_channels, discord_get_forum_post]
+  deny: [delete_post, delete_project, export_source, tg_delete_message, tg_edit_message_text, tg_edit_message_caption, tg_set_webhook, tg_delete_webhook, tg_leave_chat, discord_delete_message, discord_delete_channel, discord_delete_category, discord_delete_forum_post, discord_delete_webhook, discord_create_webhook, discord_edit_webhook, discord_send_webhook_message, discord_create_text_channel, discord_create_category, discord_edit_category, discord_remove_reaction]
+intent:
+  ttl_seconds: 1800
+  require_csrg: true

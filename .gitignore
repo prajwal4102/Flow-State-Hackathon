@@ -1,0 +1,8 @@
+node_modules/
+.env
+packages/mcp/data/runtime/
+packages/agent/data/
+*.log
+.DS_Store
+vendor/telegram-mcp/node_modules/
+vendor/discord-mcp/node_modules/

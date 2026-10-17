@@ -1,0 +1,10 @@
+# Reference for Policy Studio. Author it in the platform form; this file documents the intent.
+name: studio-editor-policy
+description: >
+  The freelance editor has NO standing permissions. It acts only under a delegated
+  token minted by studio-publisher (edit_video + preview_video, 1 hour, non-transferable).
+  Default block means that without a delegation nothing works.
+target:
+  agent: studio-editor
+default_action: block
+rules: []

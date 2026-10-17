@@ -1,0 +1,28 @@
+# Reference for Policy Studio. Author it in the platform form; this file documents the intent.
+name: studio-creator-policy
+description: Creator makes videos and drafts captions. Final renders need approval. It never publishes or deletes.
+target:
+  agent: studio-creator
+default_action: block
+rules:
+  - mcp: research
+    tools: [get_brand_kit]
+    action: allow
+  - mcp: video
+    tools: [create_video, edit_video, preview_video, get_video_status, list_projects, generate_voiceover]
+    action: allow
+  - mcp: video
+    tools: [render_final]
+    action: hold
+    reason: render-costs-compute-needs-owner-approval
+  - mcp: video
+    tools: [export_source, delete_project]
+    action: block
+    reason: creator-no-destructive
+  - mcp: social
+    tools: [draft_post, list_posts, get_posting_rules]
+    action: allow
+  - mcp: social
+    tools: [publish_post, schedule_post, reply_comment, delete_post]
+    action: block
+    reason: pol-creator-deny-publish

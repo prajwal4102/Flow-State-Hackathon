@@ -1,0 +1,21 @@
+# Reference for Policy Studio. Author it in the platform form; this file documents the intent.
+name: studio-planner-policy
+description: Planner researches and drafts. It never publishes, schedules, deletes or renders.
+target:
+  agent: studio-planner
+default_action: block
+rules:
+  - mcp: research
+    tools: [get_brand_kit, fetch_trends, fetch_url, get_analytics]
+    action: allow
+  - mcp: social
+    tools: [list_posts, get_posting_rules, fetch_comments, draft_post]
+    action: allow
+  - mcp: social
+    tools: [publish_post, reply_comment, schedule_post, delete_post]
+    action: block
+    reason: planner-no-publish
+  - mcp: video
+    tools: ["*"]
+    action: block
+    reason: planner-no-video

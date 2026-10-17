@@ -1,0 +1,32 @@
+{
+  "name": "ainstein",
+  "private": true,
+  "version": "0.1.0",
+  "description": "AInstein: a governed social media content agent. Agents reason freely; every real-world action flows through MCP servers guarded by ArmorIQ.",
+  "type": "module",
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev:mcp": "npm run dev -w @studio/mcp",
+    "dev:agent": "npm run dev -w @studio/agent",
+    "dev": "concurrently -n mcp,agent -c cyan,magenta \"npm run dev:mcp\" \"npm run dev:agent\"",
+    "start:mcp": "npm run start -w @studio/mcp",
+    "start:agent": "npm run start -w @studio/agent",
+    "typecheck": "npm run typecheck --workspaces --if-present",
+    "smoke:mcp": "npm run smoke:mcp -w @studio/agent",
+    "smoke:armoriq": "npm run smoke:armoriq -w @studio/agent",
+    "probe:matrix": "npm run probe:matrix -w @studio/agent",
+    "register:armoriq": "npm run register:armoriq -w @studio/agent",
+    "setup:telegram": "npm install --prefix vendor/telegram-mcp --no-audit --no-fund --no-package-lock",
+    "setup:discord": "npm install --prefix vendor/discord-mcp --no-audit --no-fund --no-package-lock"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2",
+    "tsx": "^4.19.2",
+    "typescript": "^5.7.3"
+  }
+}

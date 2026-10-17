@@ -1,0 +1,31 @@
+[
+  {
+    "id": "post_seed01",
+    "platform": "telegram",
+    "caption": "We generate the program that draws the pixels. A 45-second explainer costs cents, not dollars, and every word on screen is spelled right. #AInstein",
+    "mediaUrl": null,
+    "status": "published",
+    "author": "studio-publisher",
+    "createdAt": "2026-10-12T09:00:00.000Z",
+    "scheduledAt": null,
+    "publishedAt": "2026-10-12T09:30:00.000Z",
+    "metrics": { "impressions": 4120, "likes": 188, "comments": 2, "shares": 23 },
+    "comments": [
+      { "id": "c_1", "author": "Priya N.", "text": "Does this work for charts with real data?", "repliedAt": null, "reply": null },
+      { "id": "c_2", "author": "Dev K.", "text": "How long does a render take?", "repliedAt": null, "reply": null }
+    ]
+  },
+  {
+    "id": "post_seed02",
+    "platform": "discord",
+    "caption": "Same prompt, same video, every time. Deterministic rendering means no re-rolls. #AInstein",
+    "mediaUrl": null,
+    "status": "scheduled",
+    "author": "studio-publisher",
+    "createdAt": "2026-10-14T11:00:00.000Z",
+    "scheduledAt": "2026-10-18T14:00:00.000Z",
+    "publishedAt": null,
+    "metrics": { "impressions": 0, "likes": 0, "comments": 0, "shares": 0 },
+    "comments": []
+  }
+]

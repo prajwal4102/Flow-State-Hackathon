@@ -1,0 +1,11 @@
+{
+  "name": "vendor-telegram-mcp",
+  "private": true,
+  "type": "module",
+  "description": "Isolated install of the public @node2flow/telegram-bot-mcp server plus a launcher shim (launch.mjs) that adapts its JSON-Schema tool definitions to the current MCP SDK.",
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "@node2flow/telegram-bot-mcp": "1.0.4",
+    "zod": "^4.0.0"
+  }
+}

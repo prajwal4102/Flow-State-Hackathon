@@ -1,0 +1,31 @@
+{
+  "_comment": "Tools that need the owner's approval before they run, per agent. For each call listed here the governor files an approval request with ArmorIQ, waits for the owner's decision on the ArmorIQ dashboard, and executes only on approval. A platform policy that itself returns 'hold' or 'block' takes precedence. Every agent's audience-facing actions are held: nothing reaches a channel on an agent's own say-so.",
+  "publisher": [
+    "telegram__tg_send_message",
+    "telegram__tg_send_video",
+    "telegram__tg_send_photo",
+    "discord__discord_send",
+    "social__publish_post",
+    "social__reply_comment"
+  ],
+  "creator": [
+    "video__render_final",
+    "telegram__tg_send_message",
+    "telegram__tg_send_video",
+    "telegram__tg_send_photo",
+    "discord__discord_send",
+    "social__publish_post",
+    "social__schedule_post",
+    "social__reply_comment"
+  ],
+  "planner": [
+    "telegram__tg_send_message",
+    "telegram__tg_send_video",
+    "telegram__tg_send_photo",
+    "discord__discord_send",
+    "social__publish_post",
+    "social__schedule_post",
+    "social__reply_comment"
+  ],
+  "editor": []
+}
