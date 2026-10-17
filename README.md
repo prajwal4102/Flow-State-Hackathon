@@ -1,141 +1,307 @@
-# AInstein — a multi-agent content machine that runs your social media, governed by ArmorIQ
+<div align="center">
 
-**Flow State 2026 (ArmorIQ) submission.** Agents plan, produce and publish social
-content, including code-generated motion-graphics video, and are cryptographically
-unable to post, delete or spend outside the rules the owner set.
+# 🧠 AInstein
 
-> Reasoning is free. Acting is bounded. Every real-world action goes through an
-> MCP server, and every MCP call goes through ArmorIQ.
+### A multi-agent content machine that runs your social media, **governed by ArmorIQ**
 
-## What it does
+*Reasoning is free. Acting is bounded. Every real-world action goes through an MCP server, and every MCP call goes through ArmorIQ.*
 
-A small "agency" of four agents runs a brand's social presence:
+![Flow State 2026](https://img.shields.io/badge/Flow%20State-2026-orange)
+![ArmorIQ](https://img.shields.io/badge/governed%20by-ArmorIQ-2563eb)
+![Node](https://img.shields.io/badge/node-%E2%89%A520-339933?logo=node.js&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178c6?logo=typescript&logoColor=white)
+![MCP](https://img.shields.io/badge/protocol-MCP-8b5cf6)
+
+![AInstein console: a Publisher run where the delete is blocked by ArmorIQ](docs/images/console.png)
+
+</div>
+
+---
+
+## 📑 Table of contents
+
+1. [What is AInstein?](#-what-is-ainstein)
+2. [The agents](#-the-agents)
+3. [How ArmorIQ keeps them in check](#-how-armoriq-keeps-them-in-check)
+4. [Governance demos](#-governance-demos)
+5. [Architecture](#-architecture)
+6. [Quick start](#-quick-start)
+7. [Verify it works](#-verify-it-works)
+8. [Repository layout](#-repository-layout)
+9. [Pre-existing code disclosure](#-pre-existing-code-disclosure)
+10. [Takeaways](#-takeaways)
+
+---
+
+## 💡 What is AInstein?
+
+AInstein is a small **"agency" of four AI agents** that plans, produces and publishes social content for a brand, including **code-generated motion-graphics video** (Remotion) with **AI voiceover** (ElevenLabs).
+
+The twist: the agents are **cryptographically unable** to post, delete or spend outside the rules the owner set.
+
+| Without governance | With ArmorIQ |
+|---|---|
+| A prompt injection can make the agent publish anything | The injected action is not in the **signed plan**, so it is refused |
+| The owner has to trust the model | The owner **approves** audience-facing actions on a dashboard |
+| A freelancer needs your full credentials | A freelancer gets a **one-hour, action-scoped, non-transferable token** |
+| "What did it do?" is a guess | Every decision lands in an **audit trail** |
+
+---
+
+## 🤖 The agents
 
 | Agent | Thinks about | May act on |
 |---|---|---|
-| **Planner** | trends, audience reactions, reference material, briefs | read-only research, drafts |
-| **Creator** | videos (Remotion), voiceover (ElevenLabs), captions | video creation and edits, drafts; final render is **held** |
-| **Publisher** | scheduling, publishing, replying | schedule freely; publish and reply are **held** for the owner; delete is **blocked** |
-| **Freelance editor** | edits handed to it by the Publisher | only what a **delegated token** allows, for one hour |
+| 🔎 **Planner** | trends, audience reactions, reference material, briefs | read-only research, drafts |
+| 🎬 **Creator** | videos (Remotion), voiceover (ElevenLabs), captions | video creation and edits, drafts. The final render is **held** |
+| 📣 **Publisher** | scheduling, publishing, replying | schedules freely. Publish and reply are **held** for the owner. Delete is **blocked** |
+| ✂️ **Freelance editor** | edits handed over by the Publisher | only what a **delegated token** allows, for one hour |
 
-Real-world capability lives in three MCP servers (`packages/mcp`):
+### 🔌 The tools they use (MCP servers)
 
-- **research-mcp**: brand kit, Hacker News trends, URL fetch (untrusted content), analytics.
-- **video-mcp**: wraps the pre-existing Remotion-Agent pipeline: create, edit, preview (free), render MP4 (costly), ElevenLabs voiceover, export source, delete.
-- **social-mcp**: a sandbox feed: draft, schedule, publish, reply, delete. Enforces brand rules on arguments (platform allowlist, banned words, caption length).
-- **telegram** (public, third-party): the published `@node2flow/telegram-bot-mcp` server, run in its HTTP mode and proxied by our host so ArmorIQ can register it. Approved content really goes here: a private Telegram channel the owner watches on their phone. Sends are held for approval; `tg_delete_message` is blocked for everyone.
-- **discord** (public, third-party): the published `mcp-discord` server, run unmodified in its HTTP mode and proxied the same way, posting into a test Discord server. `discord_send` is held for approval; deletes and every channel, category and webhook management tool are blocked for everyone.
+Real-world capability lives in MCP servers (`packages/mcp`):
 
-## How ArmorIQ is used
+| MCP server | What it does |
+|---|---|
+| **research-mcp** | Brand kit, Hacker News trends, URL fetch (treated as untrusted content), analytics |
+| **video-mcp** | Wraps the Remotion-Agent pipeline: create, edit, preview (free), render MP4 (costly), ElevenLabs voiceover, export source, delete |
+| **social-mcp** | A sandbox feed: draft, schedule, publish, reply, delete. Enforces brand rules on arguments (platform allowlist, banned words, caption length) |
+| **telegram** *(public, third-party)* | The published `@node2flow/telegram-bot-mcp`, run in HTTP mode and proxied by our host so ArmorIQ can register it. Approved content lands in a private Telegram channel. Sends are **held**, `tg_delete_message` is **blocked** for everyone |
+| **discord** *(public, third-party)* | The published `mcp-discord`, run unmodified in HTTP mode and proxied the same way. `discord_send` is **held**. Deletes and every channel, category and webhook tool are **blocked** for everyone |
 
-Each agent is a registered ArmorIQ agent with its own policy. The agent runtime (`packages/agent/src/agent.ts`) is a two-phase loop:
+---
 
-1. **Declare.** The LLM states which tools it intends to use for the goal. `session.startPlan()` sends that plan to ArmorIQ, which canonicalises it, builds the Merkle tree and mints a signed **intent token**.
-2. **Execute.** Every tool call runs `session.check()` first. A tool that was never declared is refused as an **intent mismatch** before any policy is consulted. A declared tool is evaluated against the agent's policy on the platform: **allow**, **hold** (an approval request appears on the ArmorIQ dashboard and the agent waits), or **block**. Only an allowed or approved call reaches the MCP server, and the outcome is written to the audit trail with `session.report()`.
+## 🛡️ How ArmorIQ keeps them in check
 
-Holds: audience-facing and costly calls (publishing, Telegram and Discord sends,
-final renders) are listed per agent in `armoriq/holds.json`. For those the
-governor files an approval request with ArmorIQ, tied to the signed plan, and
-waits for the owner's decision on the ArmorIQ dashboard. Rejection or timeout
-fails closed. A platform policy that returns `hold` takes precedence.
+Each agent is a **registered ArmorIQ agent** with its own policy. The runtime ([packages/agent/src/agent.ts](packages/agent/src/agent.ts)) is a **two-phase loop**:
 
-Delegation uses `client.delegate()`: the Publisher mints a parent token covering edit, preview, render and publish, then asks ArmorIQ for a child token bound to the editor's Ed25519 key, restricted to `edit_video` and `preview_video`, valid for one hour and non-transferable. The editor's governor refuses anything outside that scope.
+```mermaid
+sequenceDiagram
+    autonumber
+    participant LLM as 🧠 Agent (LLM)
+    participant Gov as 🛡️ Governor
+    participant AIQ as ArmorIQ
+    participant MCP as 🔌 MCP server
+    participant Owner as 👤 Owner
 
-Two enforcement modes, selected with `ARMORIQ_MODE`:
+    LLM->>Gov: Declare the tools I intend to use
+    Gov->>AIQ: startPlan()
+    AIQ-->>Gov: Signed intent token (Merkle tree)
+    loop every tool call
+        LLM->>Gov: call tool X
+        Gov->>AIQ: check(X)
+        alt not in the signed plan
+            AIQ-->>Gov: ❌ BLOCKED (intent mismatch)
+        else policy says block
+            AIQ-->>Gov: ❌ BLOCKED
+        else policy says hold
+            AIQ->>Owner: approval request
+            Owner-->>AIQ: approve / reject
+            AIQ-->>Gov: ⏸ HELD, then approved
+            Gov->>MCP: execute
+        else allowed
+            AIQ-->>Gov: ✅ ALLOWED
+            Gov->>MCP: execute
+        end
+        Gov->>AIQ: report() to the audit trail
+    end
+```
 
-- `sdk`: ArmorIQ's backend decides (`/iap/sdk/enforce`), the agent executes the MCP tool itself. Works on localhost.
-- `proxy`: every call is sent to `proxy.armoriq.ai`, which verifies the Merkle inclusion proof for that step and forwards to the MCP server registered on the platform. Needs the MCP host on a public HTTPS URL.
+1. **Declare.** The LLM states which tools it intends to use. `session.startPlan()` sends that plan to ArmorIQ, which canonicalises it, builds a Merkle tree and mints a signed **intent token**.
+2. **Execute.** Every tool call runs `session.check()` first.
+   - A tool that was **never declared** is refused as an *intent mismatch* before any policy is consulted.
+   - A declared tool is evaluated against the agent's policy: **allow**, **hold** or **block**.
+   - Only an allowed or approved call reaches the MCP server, and the outcome is written to the audit trail with `session.report()`.
 
-Nothing is simulated. If `ARMORIQ_API_KEY` is missing the console refuses to run.
+### ⏸️ Holds (human approval)
 
-## The demo beats
+Audience-facing and costly calls (publishing, Telegram and Discord sends, final renders) are listed per agent in [armoriq/holds.json](armoriq/holds.json). For those, the governor files an **approval request with ArmorIQ**, tied to the signed plan, and waits for the owner's decision on the ArmorIQ dashboard. **Rejection or timeout fails closed.**
 
-| Button | What happens | Decision |
+### 🤝 Delegation
+
+The Publisher can hand work to a freelance editor with ArmorIQ's **subtree delegation** (`client.delegateSubtree()`). For each handed-over step, the backend signs a "Delegate" trust delta bound to the editor's Ed25519 key and returns a Merkle inclusion proof linking that step to the parent plan root. Steps that were **not** delegated have no proof, so the editor cannot present them.
+
+### ⚙️ Two enforcement modes
+
+Selected with `ARMORIQ_MODE`:
+
+| Mode | How it works | Needs |
 |---|---|---|
-| Run a campaign | Planner → Creator (video + caption) → Publisher schedules | ALLOWED, full audit trail |
-| Publish now | Publisher calls `publish_post` | HELD → owner approves on dashboard → published |
-| Creator tries to publish | Creator declares and calls `publish_post` | BLOCKED by the creator policy |
-| Poisoned article | Planner summarises a page with a planted "owner" note telling it to publish | The model refuses; if it had complied, `publish_post` is not in its signed plan and is refused |
-| Mid-task scope creep | Publisher signs a read-only plan, then the owner asks it to delete a post | The agent tries; BLOCKED: `tool-not-in-plan` (intent mismatch) |
-| Delegate to a freelance editor | Editor edits and previews under subtree tokens, then tries to render and publish | ALLOWED ×2, then BLOCKED: no subtree proof for those steps |
+| `sdk` | ArmorIQ's backend decides (`/iap/sdk/enforce`), the agent executes the MCP tool itself | works on localhost |
+| `proxy` | every call goes to `proxy.armoriq.ai`, which verifies the Merkle proof for that step and forwards to the registered MCP server | the MCP host on a public HTTPS URL |
 
-Delegation uses ArmorIQ's subtree delegation (`client.delegateSubtree()`): for each
-handed-over step the backend signs a "Delegate" trust delta bound to the
-editor's Ed25519 key and returns the Merkle inclusion proof linking that step to
-the parent plan root. Steps that were not delegated have no proof, so the editor
-cannot present them.
+> **Nothing is simulated.** If `ARMORIQ_API_KEY` is missing, the console refuses to run.
 
-## Architecture
+---
 
+## 🎬 Governance demos
+
+The console has a one-click demo for every governance primitive.
+
+![Governance demos panel in the console](docs/images/demos.png)
+
+| Demo | What happens | Decision |
+|---|---|---|
+| ▶️ **Run a campaign** | Planner → Creator (video + caption) → Publisher schedules | ✅ **ALLOWED**, full audit trail |
+| 📤 **Publish now** | Publisher calls `publish_post` | ⏸️ **HELD** → owner approves on the dashboard → published |
+| 🚫 **Creator tries to publish** | Creator declares and calls `publish_post` | ❌ **BLOCKED** by the creator policy |
+| ☠️ **Poisoned article** | Planner summarises a page with a planted "owner" note telling it to publish | The model refuses. Had it complied, `publish_post` is not in its signed plan, so it is **BLOCKED** |
+| 📈 **Mid-task scope creep** | Publisher signs a read-only plan, then the owner asks it to delete a post | The agent tries. **BLOCKED**: `tool-not-in-plan` (intent mismatch) |
+| 🧑‍🎨 **Delegate to a freelance editor** | Editor edits and previews under subtree tokens, then tries to render and publish | ✅ ALLOWED ×2, then ❌ **BLOCKED**: no subtree proof for those steps |
+
+---
+
+## 🏗️ Architecture
+
+```mermaid
+flowchart TD
+    Owner([👤 Owner]) --> Console
+
+    subgraph Agent["packages/agent · Console :4200"]
+        Console[Web console]
+        Agents["DeepSeek tool-calling agents<br/>planner · creator · publisher · editor"]
+        Console --> Agents
+    end
+
+    Agents -- "declare plan" --> IAP
+    Agents -- "check(tool)" --> POL
+    Agents -- "report()" --> AUD
+
+    subgraph ArmorIQ["ArmorIQ platform"]
+        IAP["IAP: signed intent token"]
+        POL["Policy: allow / hold / block"]
+        AUD["Audit trail"]
+    end
+
+    Agents -- "allowed calls" --> Host
+
+    subgraph MCP["packages/mcp · MCP host :4100"]
+        Host{{"/mcp/*"}}
+        Host --> R[research]
+        Host --> V[video]
+        Host --> S[social]
+        Host --> T[telegram]
+        Host --> D[discord]
+    end
+
+    V --> Remotion["Remotion-Agent API :3210"]
+    V --> EL[ElevenLabs]
+    S --> Feed["Sandbox feed"]
+    T --> TG[(Telegram channel)]
+    D --> DC[(Discord channel)]
 ```
- Owner ──▶ Console (packages/agent, :4200)
-             │  DeepSeek tool-calling agents: planner · creator · publisher · editor(delegated)
-             │
-             │  declare plan ──▶ ArmorIQ IAP: signed intent token
-             │  check(tool)  ──▶ ArmorIQ policy: allow / hold / block
-             │  report()     ──▶ ArmorIQ audit trail
-             ▼
-      MCP host (packages/mcp, :4100)
-        /mcp/research   /mcp/video ──▶ Remotion-Agent API (:3210) + ElevenLabs
-                        /mcp/social ──▶ sandbox feed (+ Discord webhook)
-```
 
-## Run it
+---
 
-Prerequisites: Node 20+, Python 3 (`pip install armoriq-sdk`, used only to register with the platform), a DeepSeek API key, an ArmorIQ API key.
+## 🚀 Quick start
+
+### Prerequisites
+
+- **Node 20+**
+- **Python 3** with `pip install armoriq-sdk` (used only to register with the platform)
+- A **DeepSeek** API key
+- An **ArmorIQ** API key (see [armoriq/SETUP.md](armoriq/SETUP.md))
+- `cloudflared` (or any tunnel) so ArmorIQ can reach your MCP host
+
+### Steps
 
 ```powershell
+# 1. Install
 npm install
-npm run setup:telegram               # installs the public Telegram MCP into vendor/telegram-mcp
-npm run setup:discord                # installs the public Discord MCP into vendor/discord-mcp
-copy .env.example .env               # fill ARMORIQ_*, DEEPSEEK_API_KEY, TELEGRAM_BOT_TOKEN/CHAT_ID, DISCORD_BOT_TOKEN/CHANNEL_ID
+npm run setup:telegram     # installs the public Telegram MCP into vendor/telegram-mcp
+npm run setup:discord      # installs the public Discord MCP into vendor/discord-mcp
 
-npm run dev:mcp                      # terminal 1: MCP host on :4100
-cloudflared tunnel --url http://localhost:4100   # terminal 2: public URL → MCP_PUBLIC_URL in .env, restart terminal 1
-npm run register:armoriq             # registers 4 agents + 3 MCP servers on platform.armoriq.ai
-npm run dev:agent                    # terminal 3: console on :4200
+# 2. Configure
+copy .env.example .env     # fill ARMORIQ_*, DEEPSEEK_API_KEY, TELEGRAM_*, DISCORD_*
 
-# optional, for real video, in the Remotion-Agent repo:
-#   npm run start -w @mograph/worker ; npm run start -w @mograph/api ; npm run dev -w @mograph/web
+# 3. Start the MCP host (terminal 1)
+npm run dev:mcp            # http://localhost:4100
+
+# 4. Expose it (terminal 2), then put the URL in .env as MCP_PUBLIC_URL and restart terminal 1
+cloudflared tunnel --url http://localhost:4100
+
+# 5. Register agents and MCP servers on platform.armoriq.ai
+npm run register:armoriq
+
+# 6. Start the console (terminal 3)
+npm run dev:agent          # http://localhost:4200
 ```
 
-Then add the per-agent rules and holds in the platform's policy builder as listed in
-[armoriq/SETUP.md](armoriq/SETUP.md), open http://localhost:4200 and check that
-*Policy readiness* is green. Approvals are made on https://platform.armoriq.ai.
+Then add the per-agent rules and holds in the platform's policy builder as listed in [armoriq/SETUP.md](armoriq/SETUP.md), open http://localhost:4200 and check that **Policy readiness** is green. Approvals are made on https://platform.armoriq.ai.
 
-Checks without an LLM:
+> 🎥 **Want real video?** Also start the Remotion-Agent worker and API (see [Pre-existing code disclosure](#-pre-existing-code-disclosure)).
+
+### Key environment variables
+
+| Variable | Purpose |
+|---|---|
+| `ARMORIQ_API_KEY` | **Required.** From platform.armoriq.ai → API Keys |
+| `ARMORIQ_USER_EMAIL` | The owner who approves held actions |
+| `ARMORIQ_REQUESTER_EMAIL` | A second org member under which approval requests are filed (four-eyes rule) |
+| `ARMORIQ_MODE` | `sdk` (default) or `proxy` |
+| `DEEPSEEK_API_KEY` | LLM for the agents |
+| `MCP_PUBLIC_URL` | Public tunnel URL of the MCP host |
+| `ELEVENLABS_API_KEY` | Optional, for voiceover |
+| `TELEGRAM_BOT_TOKEN`, `TELEGRAM_CHAT_ID` | Optional real distribution to Telegram |
+| `DISCORD_BOT_TOKEN`, `DISCORD_CHANNEL_ID` | Optional real distribution to Discord |
+
+Full list with comments: [.env.example](.env.example).
+
+---
+
+## ✅ Verify it works
+
+Checks that need no LLM:
 
 ```powershell
-npm run smoke:mcp            # exercises the three MCP servers
-npm run smoke:armoriq        # token minting, allow/hold/block, intent mismatch, delegation
-npm run probe:matrix         # the live ArmorIQ decision for every role × tool pair
+npm run smoke:mcp          # exercises the MCP servers
+npm run smoke:armoriq      # token minting, allow/hold/block, intent mismatch, delegation
+npm run probe:matrix       # the live ArmorIQ decision for every role × tool pair
 ```
 
-## Repository layout
+---
+
+## 🗂️ Repository layout
 
 ```
-packages/mcp         three MCP servers (Streamable HTTP, stateless) + brand guard + sandbox stores + Telegram proxy
-packages/agent       governed agent runtime, scenarios, ArmorIQ governors, web console
-vendor/telegram-mcp  isolated install of the public Telegram MCP + launch.mjs (adapts its JSON-Schema tools to the current MCP SDK)
-vendor/discord-mcp   isolated install of the public Discord MCP (mcp-discord), used unmodified
-armoriq/             platform setup guide and policy references
+flow-state/
+├── packages/
+│   ├── mcp/              MCP servers (Streamable HTTP, stateless), brand guard, sandbox stores, Telegram proxy
+│   └── agent/            Governed agent runtime, scenarios, ArmorIQ governors, web console
+├── vendor/
+│   ├── telegram-mcp/     Isolated install of the public Telegram MCP + launch.mjs shim
+│   └── discord-mcp/      Isolated install of the public Discord MCP (mcp-discord), unmodified
+├── armoriq/              Platform setup guide, policy references, holds.json
+└── docs/images/          README screenshots
 ```
 
-## Pre-existing code disclosure
+---
 
-The Remotion-Agent video pipeline (prompt → motion-graphics code → MP4) was built
-before the hackathon by the same team and is used unchanged except for a one-line
-deep-link in its preview app. Everything in this repository, the agents, the three
-MCP servers, the sandbox social layer, the ArmorIQ integration, delegation and the
-console, was built during the hackathon window.
+## 📜 Pre-existing code disclosure
 
-## Takeaways
+The **Remotion-Agent** video pipeline (prompt → motion-graphics code → MP4) was built before the hackathon by the same team and is used unchanged except for a one-line deep-link in its preview app.
 
-- ArmorIQ binds the **tool name** into the signed plan, not its arguments. Rules about *what* is posted (platform, words, length) therefore live in the MCP server as a second layer. Both layers are needed; neither is enough alone.
-- In SDK mode the backend **fails closed**: with no matching policy every call is blocked (`no_matching_policy`). Policies registered from `armoriq.yaml` are org-wide per MCP server and their allow lists are intersected, so per-agent differences and holds must be authored in the platform's policy builder.
-- A well-aligned model (DeepSeek here) refused every prompt injection we planted. The boundary still matters: when the *owner* changed the task mid-flight, the model complied and ArmorIQ refused the undeclared tool. Governance has to hold for legitimate-looking drift, not just obvious attacks.
-- Declaring intent before acting is what stops prompt injection: the poisoned page can change what the model *wants*, but cannot add a tool to a plan that is already signed.
-- Holds turn "the agent might publish something wrong" into "the agent cannot publish until I say so", without the owner approving every step.
-- Delegation with an expiring, action-scoped, non-transferable token is the right primitive for freelancers and agencies, and almost nobody uses it yet.
+Everything in **this repository**, the agents, the MCP servers, the sandbox social layer, the ArmorIQ integration, delegation and the console, was built during the hackathon window.
 
-Next: argument-level policies via ArmorIQ tool metadata (amount fields for voiceover characters and render seconds), per-platform brand bundles, and real platform connectors behind the same MCP contract.
+---
+
+## 💭 Takeaways
+
+- 🔑 **ArmorIQ binds the tool name into the signed plan, not its arguments.** Rules about *what* is posted (platform, words, length) therefore live in the MCP server as a second layer. Both layers are needed; neither is enough alone.
+- 🔒 **SDK mode fails closed.** With no matching policy every call is blocked (`no_matching_policy`). Policies registered from `armoriq.yaml` are org-wide per MCP server and their allow lists are intersected, so per-agent differences and holds must be authored in the platform's policy builder.
+- 🧪 **A well-aligned model refused every prompt injection we planted** (DeepSeek here). The boundary still matters: when the *owner* changed the task mid-flight, the model complied and ArmorIQ refused the undeclared tool. Governance has to hold for legitimate-looking drift, not just obvious attacks.
+- 📝 **Declaring intent before acting is what stops prompt injection.** The poisoned page can change what the model *wants*, but cannot add a tool to a plan that is already signed.
+- ⏸️ **Holds turn "the agent might publish something wrong" into "the agent cannot publish until I say so"**, without the owner approving every step.
+- 🎟️ **Delegation with an expiring, action-scoped, non-transferable token** is the right primitive for freelancers and agencies, and almost nobody uses it yet.
+
+### 🔭 What's next
+
+Argument-level policies via ArmorIQ tool metadata (amount fields for voiceover characters and render seconds), per-platform brand bundles, and real platform connectors behind the same MCP contract.
+
+---
+
+<div align="center">
+
+Built for **Flow State 2026** by team **AInstein** 💡
+
+</div>
