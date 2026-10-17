@@ -7,6 +7,12 @@ const $ = (s) => document.querySelector(s);
 const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
 const clip = (s, n) => (s.length > n ? `${s.slice(0, n)}…` : s);
 
+/* Public links: where judges see the results, and how they reach the owner for approvals. */
+const CHANNELS = { Telegram: "https://t.me/+PV3TEFkYuPNjMWRl", Discord: "https://discord.gg/vqYfNTZhe" };
+const OWNER = { name: "Prajwal", phone: "+91 63627 52965", whatsapp: "https://wa.me/916362752965", telegram: "https://t.me/+916362752965" };
+const waLink = (id) => `${OWNER.whatsapp}?text=${encodeURIComponent(`Hi ${OWNER.name}, I'm testing AInstein. Please approve my held action${id ? ` (approval id ${id})` : ""}.`)}`;
+const deliveredLinks = (set) => [...set].map((c) => `<a href="${CHANNELS[c]}" target="_blank" rel="noopener">Open ${c} ↗</a>`).join(" · ");
+
 let config = null;
 let lastSeq = 0;
 let running = false;
@@ -230,14 +236,16 @@ function renderSpot() {
     thinking: ["working", "💭", `${who} is thinking`, s.text || "Deciding what to do next.", `thinking ${mmss(elapsed)}`, true],
     checking: ["working", icon(s.tool ?? "x__"), `${label(s.tool ?? "")}`, "Asking ArmorIQ whether this is allowed…", "checking", true],
     running: ["working", icon(s.tool ?? "x__"), `${label(s.tool ?? "")}`, s.text || "Allowed. The tool is running.", `running ${mmss(elapsed)}`, true],
-    waiting: ["waiting", "⏸", `${label(s.tool ?? "")} is on hold`, `Waiting for your approval on <a href="${esc(config?.platformUrl ?? "#")}" target="_blank" rel="noopener">platform.armoriq.ai</a> → Activity → Held Actions. Approval id ${esc(s.id ?? "")}.`, `waiting ${mmss(elapsed)}`, false],
+    waiting: ["waiting", "⏸", `${label(s.tool ?? "")} is on hold`, `Waiting for the owner to approve it on <a href="${esc(config?.platformUrl ?? "#")}" target="_blank" rel="noopener">platform.armoriq.ai</a> → Held Actions (approval id ${esc(s.id ?? "")}).<br><b>Trying this as a judge?</b> Message ${OWNER.name} to approve: <a href="${waLink(s.id)}" target="_blank" rel="noopener">WhatsApp ↗</a> · <a href="${OWNER.telegram}" target="_blank" rel="noopener">Telegram ↗</a> · ${OWNER.phone}`, `waiting ${mmss(elapsed)}`, false],
     blocked: ["block", "⛔", `${label(s.tool ?? "")} was blocked`, s.text || "ArmorIQ refused it. Nothing was executed.", "blocked", false],
     allowed: ["allow", "✅", `${label(s.tool ?? "")} done`, s.text || "", "done", false],
     handoff: ["working", "🤝", s.text || "Handing over", "Next agent is starting.", "handoff", true],
-    done: ["done", "🏁", "Run finished", s.text || "", `finished in ${mmss(Math.round((Date.now() - run.startedAt) / 1000))}`, false],
+    done: ["done", "🏁", run.delivered.size ? `Run finished · delivered to ${[...run.delivered].join(" and ")}` : "Run finished", run.delivered.size ? `${deliveredLinks(run.delivered)}<br>${esc(s.text || "")}` : esc(s.text || ""), `finished in ${mmss(Math.round((Date.now() - run.startedAt) / 1000))}`, false],
     error: ["block", "⚠️", s.text || "Run failed", s.detail || "", "error", false],
     working: ["working", "●", s.text || "Working", "", "working", true],
-    yourturn: ["yourturn", "💬", `${who} finished and is waiting for you`, "Reply below to continue under the same signed plan. Press End run or ＋ New when you are done.", `closes in ${mmss(Math.max(0, 300 - elapsed))}`, false],
+    yourturn: run.delivered.size
+      ? ["allow", "🎉", `Delivered to ${[...run.delivered].join(" and ")}`, `It's live. ${deliveredLinks(run.delivered)}<br>Want a change? Reply below (same signed plan). Otherwise press End run or ＋ New run.`, `closes in ${mmss(Math.max(0, 300 - elapsed))}`, false]
+      : ["yourturn", "💬", `${who} finished and is waiting for you`, "Reply below to continue under the same signed plan. Press End run or ＋ New run when you are done.", `closes in ${mmss(Math.max(0, 300 - elapsed))}`, false],
   };
   const [cls, ico, title, sub, state, typing] = map[s.kind] ?? map.working;
   const el = $("#spotlight");
@@ -417,7 +425,7 @@ function handle(e) {
         else { const extra = resultNote(e.tool, e.preview); if (extra) setSub(el, `${el.querySelector(".sub")?.innerHTML ?? ""} <span class="muted">· ${esc(extra)}</span>`); }
         addDetails(el, `<div class="kv"><b>Result</b></div><pre>${esc(e.preview)}</pre>`);
       }
-      if (e.ok && /telegram__tg_send|discord__discord_send/.test(e.tool)) { run.delivered.add(e.tool.startsWith("telegram") ? "Telegram" : "Discord"); renderPipeline(); flashDelivered(); }
+      if (/telegram__tg_send|discord__discord_send/.test(e.tool)) deliveryBanner(e);
       setState(e.ok ? "allowed" : "blocked", e.ok ? resultNote(e.tool, e.preview) || "Done." : `Tool error: ${clip(e.preview.replace(/\s+/g, " "), 100)}`, { tool: e.tool });
       setTimeout(() => { if (run && ["allowed", "blocked"].includes(run.state.kind)) setState("thinking", "Deciding the next step."); }, 1800);
       break;
@@ -450,6 +458,18 @@ function handle(e) {
       break;
     }
   }
+}
+/* A clear, unmissable confirmation in the action list whenever a channel send succeeds or fails. */
+function deliveryBanner(e) {
+  const channel = e.tool.startsWith("telegram") ? "Telegram" : "Discord";
+  const what = /video/.test(e.tool) ? "The video" : /photo/.test(e.tool) ? "The image" : "The post";
+  const confirmed = e.ok && (/"message_id"/.test(e.preview) || /successfully sent|message sent/i.test(e.preview)) && !/"ok"\s*:\s*false/.test(e.preview);
+  if (confirmed) { run.delivered.add(channel); renderPipeline(); }
+  const html = confirmed
+    ? `<div class="delivered ok"><div class="dico">✅</div><div><b>${what} reached ${channel}</b><div class="dsub">Delivered at ${new Date().toLocaleTimeString()} · <a href="${CHANNELS[channel]}" target="_blank" rel="noopener">open ${channel} ↗</a></div></div></div>`
+    : `<div class="delivered bad"><div class="dico">⚠️</div><div><b>${what} did not reach ${channel}</b><div class="dsub">${esc(clip(e.preview.replace(/\s+/g, " "), 140))}</div></div></div>`;
+  $("#timeline").insertAdjacentHTML("beforeend", html);
+  $("#timeline").lastElementChild.scrollIntoView({ block: "nearest" });
 }
 function resultNote(tool, preview) {
   try {

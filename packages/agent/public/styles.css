@@ -240,3 +240,23 @@ body:not(.thoughts) .item.say { display: none; }
 /* ── New run: always visible at the top of the left column ── */
 .btn.new-run { width: 100%; padding: 11px 14px; font-size: 14.5px; text-align: left; color: var(--accent); background: var(--accent-soft); border: 1.5px solid var(--accent-ring); }
 .btn.new-run:hover { background: var(--card); border-color: var(--accent); }
+
+/* ── approval contact notice ── */
+.notice { background: var(--hold-soft); border-color: #fde68a; }
+.notice-head { font-weight: 700; font-size: 14px; margin-bottom: 6px; }
+.notice p { margin: 0 0 10px; font-size: 13px; line-height: 1.5; color: var(--fg); }
+.contact { display: flex; gap: 8px; margin-bottom: 6px; }
+.contact a { flex: 1; text-align: center; padding: 8px 10px; border-radius: 10px; font-weight: 600; font-size: 13px; color: #fff; text-decoration: none; }
+.contact a.wa { background: #25d366; }
+.contact a.tg { background: #26a5e4; }
+.contact a:hover { filter: brightness(.95); }
+
+/* ── delivery confirmation in the action list ── */
+.delivered { display: flex; gap: 12px; align-items: center; padding: 12px 14px; margin: 10px 0; border-radius: 12px; border: 1px solid; animation: pop .35s ease-out; }
+.delivered.ok { background: var(--allow-soft); border-color: #bbf7d0; }
+.delivered.bad { background: var(--block-soft); border-color: #fecaca; }
+.delivered .dico { font-size: 20px; }
+.delivered b { font-size: 14px; }
+.delivered .dsub { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+.delivered a, .spot-sub a { color: var(--accent); font-weight: 600; }
+@keyframes pop { from { transform: scale(.97); opacity: 0; } to { transform: none; opacity: 1; } }
