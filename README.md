@@ -12,6 +12,14 @@
 ![TypeScript](https://img.shields.io/badge/TypeScript-5.7-3178c6?logo=typescript&logoColor=white)
 ![MCP](https://img.shields.io/badge/protocol-MCP-8b5cf6)
 
+### [▶️ Watch the demo video](https://drive.google.com/file/d/1mmzZPyyu-ZU1XRc3NatmAV1kRGAJStN4/view?usp=sharing)
+
+[![Demo video](https://img.shields.io/badge/%E2%96%B6%20Demo%20video-watch%20on%20Google%20Drive-ea580c?style=for-the-badge&logo=googledrive&logoColor=white)](https://drive.google.com/file/d/1mmzZPyyu-ZU1XRc3NatmAV1kRGAJStN4/view?usp=sharing)
+
+**See what the agents actually posted:**
+[![Telegram channel](https://img.shields.io/badge/Telegram-see%20the%20posts-26A5E4?logo=telegram&logoColor=white)](https://t.me/+PV3TEFkYuPNjMWRl)
+[![Discord channel](https://img.shields.io/badge/Discord-see%20the%20posts-5865F2?logo=discord&logoColor=white)](https://discord.gg/vqYfNTZhe)
+
 ![AInstein console: a Publisher run where the delete is blocked by ArmorIQ](docs/images/console.png)
 
 </div>
@@ -24,12 +32,13 @@
 2. [The agents](#-the-agents)
 3. [How ArmorIQ keeps them in check](#-how-armoriq-keeps-them-in-check)
 4. [Governance demos](#-governance-demos)
-5. [Architecture](#-architecture)
-6. [Quick start](#-quick-start)
-7. [Verify it works](#-verify-it-works)
-8. [Repository layout](#-repository-layout)
-9. [Pre-existing code disclosure](#-pre-existing-code-disclosure)
-10. [Takeaways](#-takeaways)
+5. [See it live: the channels](#-see-it-live-the-channels)
+6. [Architecture](#-architecture)
+7. [Quick start](#-quick-start)
+8. [Verify it works](#-verify-it-works)
+9. [Repository layout](#-repository-layout)
+10. [Pre-existing code disclosure](#-pre-existing-code-disclosure)
+11. [Takeaways](#-takeaways)
 
 ---
 
@@ -172,6 +181,21 @@ The editor runs under a delegated, scoped token. In this run there was no video 
 Asked to delete a post, the Publisher's plan declares the delete, and ArmorIQ's policy refuses it (`BLOCKED`, "Refused by ArmorIQ policy"). Nothing was deleted.
 
 ![Policy block on delete](docs/images/console.png)
+
+---
+
+## 📺 See it live: the channels
+
+Everything AInstein publishes is delivered to two real channels. Join them to see the posts and narrated videos the agents created, each one sent only after ArmorIQ allowed it and the owner approved it.
+
+| Channel | Join | What you'll find |
+|---|---|---|
+| <img src="https://cdn.simpleicons.org/telegram/26A5E4" width="16"> **Telegram** | [Join the Telegram channel](https://t.me/+PV3TEFkYuPNjMWRl) | Captions and narrated MP4 videos, sent by the Publisher with `tg_send_message` / `tg_send_video` |
+| <img src="https://cdn.simpleicons.org/discord/5865F2" width="16"> **Discord** | [Join the Discord server](https://discord.gg/vqYfNTZhe) | The same posts with video links, sent by the Publisher with `discord_send` |
+
+**What you will *not* find:** anything that was **blocked** or **rejected**. Deletes, posts outside the signed plan, and sends that were never approved never reached these channels, and that absence is the point.
+
+> Every message corresponds to a run you can trace on platform.armoriq.ai: the signed plan under **Intent**, the approval under **Held Actions**, and the audit entry under **Observability**.
 
 ---
 
