@@ -149,6 +149,30 @@ The console has a one-click demo for every governance primitive.
 | 📈 **Mid-task scope creep** | Publisher signs a read-only plan, then the owner asks it to delete a post | The agent tries. **BLOCKED**: `tool-not-in-plan` (intent mismatch) |
 | 🧑‍🎨 **Delegate to a freelance editor** | Editor edits and previews under subtree tokens, then tries to render and publish | ✅ ALLOWED ×2, then ❌ **BLOCKED**: no subtree proof for those steps |
 
+### 📸 Live proof
+
+Screenshots from real runs of the console against the live ArmorIQ platform, step by step.
+
+**1. ⏸️ Publish now: the publish is HELD for the owner.**
+The Publisher signs a 6-step plan, reads the brand kit and posting rules and saves a draft (all ✅ ALLOWED). The audience-facing `publish_post` is **HELD** and the agent waits for approval on the ArmorIQ dashboard (approval id shown). Rejection or timeout fails closed.
+
+![Publish now: held for approval](docs/images/demo-publish-held.png)
+
+**2. 🚧 Mid-task scope creep: BLOCKED by intent.**
+The Publisher signs a plan containing only `list_posts`. The owner then asks it to delete a post. The agent tries, and ArmorIQ refuses with `tool-not-in-plan`, because delete was never in the signed plan.
+
+![Scope creep: delete blocked, not in the signed plan](docs/images/demo-scope-creep.png)
+
+**3. 🤝 Delegation: the freelance editor is stopped at the edge of its token.**
+The editor runs under a delegated, scoped token. In this run there was no video project yet, so the edit and preview calls hit a tool error. The calls outside the delegated scope (`Check video status`, `List workspace posts`) are **BLOCKED** with "Outside what was delegated".
+
+![Delegation: out-of-scope calls blocked](docs/images/demo-delegation.png)
+
+**4. 🧾 A refused delete in a free-form run.**
+Asked to delete a post, the Publisher's plan declares the delete, and ArmorIQ's policy refuses it (`BLOCKED`, "Refused by ArmorIQ policy"). Nothing was deleted.
+
+![Policy block on delete](docs/images/console.png)
+
 ---
 
 ## 🏗️ Architecture
