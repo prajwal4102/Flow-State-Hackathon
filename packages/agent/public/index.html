@@ -27,6 +27,7 @@
 <main class="layout">
   <!-- LEFT: start something -->
   <aside class="col left">
+    <button id="newRun" class="btn new-run" title="End the current conversation and start fresh">＋ New run</button>
     <section class="card create">
       <h2>What should AInstein make?</h2>
       <textarea id="brief" rows="4" placeholder="e.g. A 20-second video on why consistency beats intensity in learning: 20 minutes a day is over 120 hours a year."></textarea>
@@ -68,7 +69,6 @@
         </div>
         <div class="run-tools">
           <button id="cancelRun" class="btn ghost small hidden">Cancel run</button>
-          <button id="newRun" class="btn ghost small" title="End the current conversation and clear this panel">＋ New</button>
           <div class="counters">
             <div class="counter allow"><b id="cAllow">0</b><span>allowed</span></div>
             <div class="counter hold"><b id="cHold">0</b><span>held</span></div>

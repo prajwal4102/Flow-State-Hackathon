@@ -236,3 +236,7 @@ body:not(.thoughts) .item.say { display: none; }
 .lc-arrow { color: var(--muted); font-size: 16px; }
 .linkcard:hover .lc-arrow { color: var(--accent); }
 .side-note { margin: 0 2px; line-height: 1.45; }
+
+/* ── New run: always visible at the top of the left column ── */
+.btn.new-run { width: 100%; padding: 11px 14px; font-size: 14.5px; text-align: left; color: var(--accent); background: var(--accent-soft); border: 1.5px solid var(--accent-ring); }
+.btn.new-run:hover { background: var(--card); border-color: var(--accent); }
