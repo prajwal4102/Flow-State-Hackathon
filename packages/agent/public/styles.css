@@ -260,3 +260,5 @@ body:not(.thoughts) .item.say { display: none; }
 .delivered .dsub { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
 .delivered a, .spot-sub a { color: var(--accent); font-weight: 600; }
 @keyframes pop { from { transform: scale(.97); opacity: 0; } to { transform: none; opacity: 1; } }
+
+@media (max-width: 1200px) { .col.right .notice { grid-column: 1 / -1; } }
